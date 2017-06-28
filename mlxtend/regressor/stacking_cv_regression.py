@@ -22,6 +22,7 @@ from sklearn.model_selection._split import check_cv
 from ..externals import six
 from ..externals.name_estimators import _name_estimators
 import numpy as np
+import pandas as pd
 
 
 class StackingCVRegressor(BaseEstimator, RegressorMixin, TransformerMixin):
@@ -80,7 +81,7 @@ class StackingCVRegressor(BaseEstimator, RegressorMixin, TransformerMixin):
 
         Parameters
         ----------
-        X : numpy array, shape = [n_samples, n_features]
+        X : numpy array or pandas dataframe, shape = [n_samples, n_features]
             Training vectors, where n_samples is the number of samples and
             n_features is the number of features.
 
@@ -125,8 +126,14 @@ class StackingCVRegressor(BaseEstimator, RegressorMixin, TransformerMixin):
             #
             for train_idx, holdout_idx in kfold.split(X, y, groups):
                 instance = clone(regr)
-                instance.fit(X[train_idx], y[train_idx])
-                y_pred = instance.predict(X[holdout_idx])
+                if type(X) == pd.DataFrame:
+                    instance.fit(X.iloc[train_idx, :], y[train_idx])
+                    y_pred = instance.predict(X.iloc[holdout_idx, :])
+                    print("pd")
+                else:
+                    instance.fit(X[train_idx], y[train_idx])
+                    y_pred = instance.predict(X[holdout_idx])
+                    print("np")
                 meta_features[holdout_idx, i] = y_pred
 
         # Train meta-model on the out-of-fold predictions
