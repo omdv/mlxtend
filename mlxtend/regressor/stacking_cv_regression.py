@@ -129,11 +129,9 @@ class StackingCVRegressor(BaseEstimator, RegressorMixin, TransformerMixin):
                 if type(X) == pd.DataFrame:
                     instance.fit(X.iloc[train_idx, :], y[train_idx])
                     y_pred = instance.predict(X.iloc[holdout_idx, :])
-                    print("pd")
                 else:
                     instance.fit(X[train_idx], y[train_idx])
                     y_pred = instance.predict(X[holdout_idx])
-                    print("np")
                 meta_features[holdout_idx, i] = y_pred
 
         # Train meta-model on the out-of-fold predictions
